@@ -9,6 +9,7 @@ import {
 
 interface YouTubePlayerProps {
   id: string
+  onReady?: () => void
 }
 
 export const YouTubePlayer: Component<YouTubePlayerProps> = (props) => {
@@ -28,6 +29,7 @@ export const YouTubePlayer: Component<YouTubePlayerProps> = (props) => {
         events: {
           onReady: (event: YT.PlayerEvent) => {
             event.target.playVideo()
+            props.onReady?.()
           }
         }
       })

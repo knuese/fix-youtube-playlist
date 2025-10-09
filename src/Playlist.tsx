@@ -1,4 +1,11 @@
-import { type Component, createSignal, For, onMount, Show } from 'solid-js'
+import {
+  type Component,
+  createEffect,
+  createSignal,
+  For,
+  onMount,
+  Show
+} from 'solid-js'
 
 import styles from './Playlist.module.css'
 import { YouTubePlayer } from './YoutubePlayer.tsx'
@@ -26,14 +33,26 @@ export const Playlist: Component<PlaylistProps> = (props) => {
     setCurrentVideo(nextVideo)
   }
 
+  const scrollSelected = () => {
+    const selected = document.querySelector(`.${styles.selected}`)
+    console.log(currentVideo(), selected)
+    selected?.scrollIntoView({ block: 'center' })
+  }
+
   onMount(() => {
     getRandomVideo()
+  })
+
+  createEffect(() => {
+    if (currentVideo()) {
+      scrollSelected()
+    }
   })
 
   return (
     <div class={styles.playlistContainer}>
       <Show when={currentVideo()}>
-        <YouTubePlayer id={currentVideo()} />
+        <YouTubePlayer id={currentVideo()} onReady={scrollSelected} />
       </Show>
       <ul class={styles.playlistList}>
         <For each={props.videos}>
