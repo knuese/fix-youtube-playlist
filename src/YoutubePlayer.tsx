@@ -1,5 +1,11 @@
 import { createScriptLoader } from '@solid-primitives/script-loader'
-import { type Component, onMount } from 'solid-js'
+import {
+  type Component,
+  createEffect,
+  createSignal,
+  onCleanup,
+  onMount
+} from 'solid-js'
 
 interface YouTubePlayerProps {
   id: string
@@ -7,6 +13,7 @@ interface YouTubePlayerProps {
 
 export const YouTubePlayer: Component<YouTubePlayerProps> = (props) => {
   let playerContainer!: HTMLDivElement
+  const [player, setPlayer] = createSignal<YT.Player | null>(null)
 
   createScriptLoader({ src: 'https://www.youtube.com/iframe_api' })
 
@@ -14,7 +21,7 @@ export const YouTubePlayer: Component<YouTubePlayerProps> = (props) => {
     const videoId = props.id
 
     window.onYouTubeIframeAPIReady = () => {
-      new window.YT.Player(playerContainer, {
+      const player = new window.YT.Player(playerContainer, {
         height: '360',
         width: '640',
         videoId,
@@ -24,7 +31,17 @@ export const YouTubePlayer: Component<YouTubePlayerProps> = (props) => {
           }
         }
       })
+
+      setPlayer(player)
     }
+  })
+
+  onCleanup(() => {
+    player()?.destroy()
+  })
+
+  createEffect(() => {
+    if (player()) player()!.loadVideoById(props.id)
   })
 
   return <div ref={playerContainer!} />
