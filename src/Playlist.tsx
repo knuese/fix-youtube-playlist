@@ -1,7 +1,7 @@
 import { type Component, For } from 'solid-js'
-import { YouTubePlayer } from './YoutubePlayer.tsx'
 
 import styles from './Playlist.module.css'
+import { YouTubePlayer } from './YoutubePlayer.tsx'
 
 interface PlaylistProps {
   videos: { title: string; id: string }[]

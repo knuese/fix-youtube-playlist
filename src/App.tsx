@@ -1,5 +1,6 @@
-import { createResource, createSignal, Match, Switch } from 'solid-js'
 import ky from 'ky'
+import { createResource, createSignal, Match, Switch } from 'solid-js'
+
 import { Playlist } from './Playlist.tsx'
 
 export const App = () => {
