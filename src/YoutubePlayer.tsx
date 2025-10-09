@@ -11,9 +11,8 @@ export const YouTubePlayer: Component<YouTubePlayerProps> = (props) => {
   createScriptLoader({ src: 'https://www.youtube.com/iframe_api' })
 
   onMount(() => {
-    // YouTube API calls this when it's ready
-    ;(window as any).onYouTubeIframeAPIReady = () => {
-      new (window as any).YT.Player(playerContainer, {
+    window.onYouTubeIframeAPIReady = () => {
+      new window.YT.Player(playerContainer, {
         height: '360',
         width: '640',
         videoId: props.id,

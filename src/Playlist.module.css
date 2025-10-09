@@ -1,0 +1,12 @@
+.playlistContainer {
+  display: grid;
+  grid-template-columns: 2.5fr 1fr;
+  width: 100%;
+  height: 100vh;
+}
+
+.playlistList {
+  max-height: 100%;
+  overflow-y: auto;
+  list-style: none;
+}
