@@ -35,7 +35,6 @@ export const Playlist: Component<PlaylistProps> = (props) => {
 
   const scrollSelected = () => {
     const selected = document.querySelector(`.${styles.selected}`)
-    console.log(currentVideo(), selected)
     selected?.scrollIntoView({ block: 'center' })
   }
 
@@ -52,7 +51,11 @@ export const Playlist: Component<PlaylistProps> = (props) => {
   return (
     <div class={styles.playlistContainer}>
       <Show when={currentVideo()}>
-        <YouTubePlayer id={currentVideo()} onReady={scrollSelected} />
+        <YouTubePlayer
+          id={currentVideo()}
+          onReady={scrollSelected}
+          onVideoEnd={getRandomVideo}
+        />
       </Show>
       <ul class={styles.playlistList}>
         <For each={props.videos}>
