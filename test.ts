@@ -1,6 +1,7 @@
 import {google} from 'googleapis'
-import fs from 'fs/promises'
-import readline from 'readline'
+import * as fs from 'fs/promises'
+import * as readline from 'readline'
+import {OAuth2Client} from "google-auth-library";
 
 // OAuth credentials file
 const CREDENTIALS_PATH = './client_secret.json'
@@ -9,10 +10,9 @@ const TOKEN_PATH = './token.json'
 // Scopes required for YouTube Data API
 const SCOPES = ['https://www.googleapis.com/auth/youtube.readonly']
 
-async function getAuthenticatedClient() {
+async function getAuthenticatedClient(): Promise<OAuth2Client> {
     const content = await fs.readFile(CREDENTIALS_PATH, 'utf-8')
     const {client_id, client_secret, redirect_uris} = JSON.parse(content).installed
-
     const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0])
 
     try {
@@ -24,7 +24,7 @@ async function getAuthenticatedClient() {
     }
 }
 
-function getNewToken(oAuth2Client) {
+function getNewToken(oAuth2Client): Promise<OAuth2Client> {
     const authUrl = oAuth2Client.generateAuthUrl({
         access_type: 'offline',
         scope: SCOPES,
@@ -46,7 +46,6 @@ function getNewToken(oAuth2Client) {
                 const {tokens} = await oAuth2Client.getToken(code)
                 oAuth2Client.setCredentials(tokens)
                 await fs.writeFile(TOKEN_PATH, JSON.stringify(tokens))
-                console.log('✅ Token stored to', TOKEN_PATH)
                 resolve(oAuth2Client)
             } catch (err) {
                 reject(err)
@@ -59,14 +58,28 @@ async function main() {
     const auth = await getAuthenticatedClient()
     const youtube = google.youtube({version: 'v3', auth})
 
-    const res = await youtube.playlistItems.list({
-        part: ['snippet'],
-        playlistId: 'UULFLz90dMxYYJjkTNCTAapp_w', // Replace if using a different playlist
-        maxResults: 10,
-    })
+    let nextPageToken = ''
+    const allVideos = []
 
-    console.log('\n🎬 Playlist Items:\n')
-    console.log(JSON.stringify(res.data, null, 2))
+    do {
+        const res = await youtube.playlistItems.list({
+            part: ['snippet'],
+            playlistId: 'PLIiySdUAkcfzeIUd6FKQgzZ7dcje5Ccv2',
+            pageToken: nextPageToken,
+            maxResults: 50
+        })
+
+        console.log(`received ${res.data.items.length} items, nextPageToken: ${res.data.nextPageToken}`)
+
+        allVideos.push(...res.data.items.map((item) => ({
+            title: item.snippet.title,
+            id: item.snippet.resourceId.videoId
+        })))
+
+        nextPageToken = res.data.nextPageToken
+    } while (nextPageToken)
+
+    console.log(JSON.stringify(allVideos, null, 2))
 }
 
 main().catch(console.error)
