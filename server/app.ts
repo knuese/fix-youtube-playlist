@@ -58,7 +58,7 @@ app.get('/playlist/:id', async (req, res) => {
       nextPageToken = res.data.nextPageToken ?? ''
     } while (nextPageToken)
 
-    res.status(200).send({ videos })
+    res.status(200).send(videos)
   } catch (e) {
     console.error('failed to get playlist', e)
     res

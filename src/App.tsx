@@ -1,6 +1,7 @@
 import { createResource, createSignal, Match, Switch } from 'solid-js'
 import './App.css'
 import ky from 'ky'
+import { Playlist } from './Playlist.tsx'
 
 export const App = () => {
   const [playlistId, setPlaylistId] = createSignal<string | null>(null)
@@ -11,21 +12,25 @@ export const App = () => {
   )
 
   return (
-    <Switch>
-      <Match when={!playlistId()}>
-        <label style={{ display: 'flex', gap: '8px' }}>
-          Enter Playlist ID:
-          <input
-            style={{ width: '250px' }}
-            onChange={(e) => setPlaylistId(e.currentTarget.value)}
-          />
-        </label>
-      </Match>
-      <Match when={videos.loading}>Loading...</Match>
-      <Match when={videos.error}>Error: {videos.error}</Match>
-      <Match when={videos.latest}>
-        {JSON.stringify(videos.latest, null, 2)}
-      </Match>
-    </Switch>
+    <div
+      style={{ display: 'flex', width: '100vw', 'justify-content': 'center' }}
+    >
+      <Switch>
+        <Match when={!playlistId()}>
+          <label style={{ display: 'flex', gap: '8px' }}>
+            Enter Playlist ID:
+            <input
+              style={{ width: '250px' }}
+              onChange={(e) => setPlaylistId(e.currentTarget.value)}
+            />
+          </label>
+        </Match>
+        <Match when={videos.loading}>Loading...</Match>
+        <Match when={videos.error}>Error: {videos.error}</Match>
+        <Match when={videos.latest}>
+          <Playlist videos={videos.latest!} />
+        </Match>
+      </Switch>
+    </div>
   )
 }
