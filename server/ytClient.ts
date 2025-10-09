@@ -1,54 +1,40 @@
 import * as fs from 'fs/promises'
 import { google, youtube_v3 } from 'googleapis'
-import * as readline from 'readline'
 
-// OAuth credentials file
-const CREDENTIALS_PATH = './client_secret.json'
-const TOKEN_PATH = './token.json'
+// OAuth credentials file - relative to project root
+const CREDENTIALS_PATH = './server/client_secret.json'
+const TOKEN_PATH = './server/token.json'
 
-// Scopes required for YouTube Data API
+// OAuth scopes for YouTube API
 const SCOPES = ['https://www.googleapis.com/auth/youtube.readonly']
 
-export const getYouTubeClient = async (): Promise<youtube_v3.Youtube> => {
+const getOAuthClient = async () => {
   const content = await fs.readFile(CREDENTIALS_PATH, 'utf-8')
   const { client_id, client_secret, redirect_uris } =
     JSON.parse(content).installed
-  let oAuth2Client = new google.auth.OAuth2(
-    client_id,
-    client_secret,
-    redirect_uris[0]
-  )
 
-  try {
-    const token = await fs.readFile(TOKEN_PATH, 'utf-8')
-    oAuth2Client.setCredentials(JSON.parse(token))
-  } catch (err) {
-    const authUrl = oAuth2Client.generateAuthUrl({
-      access_type: 'offline',
-      scope: SCOPES
-    })
+  return new google.auth.OAuth2(client_id, client_secret, redirect_uris[0])
+}
 
-    console.log(`authorize here: ${authUrl}`)
+export const getAuthUrl = async () => {
+  const oAuth2Client = await getOAuthClient()
+  return oAuth2Client.generateAuthUrl({
+    access_type: 'offline',
+    scope: SCOPES
+  })
+}
 
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout
-    })
+export const setTokens = async (code: string) => {
+  const oAuth2Client = await getOAuthClient()
+  const { tokens } = await oAuth2Client.getToken(code)
+  await fs.writeFile(TOKEN_PATH, JSON.stringify(tokens))
+}
 
-    oAuth2Client = await new Promise((resolve, reject) => {
-      rl.question('code: ', async (code) => {
-        rl.close()
-        try {
-          const { tokens } = await oAuth2Client.getToken(code)
-          oAuth2Client.setCredentials(tokens)
-          await fs.writeFile(TOKEN_PATH, JSON.stringify(tokens))
-          resolve(oAuth2Client)
-        } catch (err) {
-          reject(err)
-        }
-      })
-    })
-  }
+export const getYouTubeClient = async (): Promise<youtube_v3.Youtube> => {
+  const oAuth2Client = await getOAuthClient()
+
+  const token = await fs.readFile(TOKEN_PATH, 'utf-8')
+  oAuth2Client.setCredentials(JSON.parse(token))
 
   return google.youtube({ version: 'v3', auth: oAuth2Client })
 }

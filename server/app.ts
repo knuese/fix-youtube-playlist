@@ -1,14 +1,33 @@
 import express from 'express'
 
-import { getYouTubeClient } from './ytClient.ts'
+import { getAuthUrl, getYouTubeClient, setTokens } from './ytClient.ts'
 
 const PORT = 8888
 
 const app = express()
 
+app.post('/oauth-code', async (req, res) => {
+  const code = req.body.code
+
+  if (!code) {
+    return res.status(400).send('must provide code')
+  }
+
+  try {
+    await setTokens(code)
+  } catch (e) {
+    console.error('failed to set tokens', e)
+    return res.status(500).send('failed to send tokens')
+  }
+
+  res.status(200).send('set tokens')
+})
+
 app.get('/playlist/:id', async (req, res) => {
-  if (!req.params.id) {
-    res.status(400).send('must provide playlist ID')
+  const playlistId = req.params.id
+
+  if (!playlistId) {
+    return res.status(400).send('must provide playlist ID')
   }
 
   try {
@@ -20,7 +39,7 @@ app.get('/playlist/:id', async (req, res) => {
     do {
       const res = await yt.playlistItems.list({
         part: ['snippet'],
-        playlistId: 'PLIiySdUAkcfzeIUd6FKQgzZ7dcje5Ccv2',
+        playlistId,
         pageToken: nextPageToken,
         maxResults: 50
       })
@@ -42,7 +61,9 @@ app.get('/playlist/:id', async (req, res) => {
     res.status(200).send({ videos })
   } catch (e) {
     console.error('failed to get playlist', e)
-    res.status(500).send('failed to get playlist')
+    res
+      .status(500)
+      .send({ authUrl: await getAuthUrl(), message: 'failed to get playlist' })
   }
 })
 
