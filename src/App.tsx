@@ -1,35 +1,31 @@
-import { createSignal } from 'solid-js'
-import solidLogo from './assets/solid.svg'
-import viteLogo from '/vite.svg'
+import { createResource, createSignal, Match, Switch } from 'solid-js'
 import './App.css'
+import ky from 'ky'
 
-function App() {
-  const [count, setCount] = createSignal(0)
+export const App = () => {
+  const [playlistId, setPlaylistId] = createSignal<string | null>(null)
+
+  const [videos] = createResource<{ title: string; id: string }[], string>(
+    playlistId,
+    (playlistId) => ky.get(`/api/playlist/${playlistId}`).json()
+  )
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} class="logo" alt="Vite logo" />
-        </a>
-        <a href="https://solidjs.com" target="_blank">
-          <img src={solidLogo} class="logo solid" alt="Solid logo" />
-        </a>
-      </div>
-      <h1>Vite + Solid</h1>
-      <div class="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count()}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p class="read-the-docs">
-        Click on the Vite and Solid logos to learn more
-      </p>
-    </>
+    <Switch>
+      <Match when={!playlistId()}>
+        <label style={{ display: 'flex', gap: '8px' }}>
+          Enter Playlist ID:
+          <input
+            style={{ width: '250px' }}
+            onChange={(e) => setPlaylistId(e.currentTarget.value)}
+          />
+        </label>
+      </Match>
+      <Match when={videos.loading}>Loading...</Match>
+      <Match when={videos.error}>Error: {videos.error}</Match>
+      <Match when={videos.latest}>
+        {JSON.stringify(videos.latest, null, 2)}
+      </Match>
+    </Switch>
   )
 }
-
-export default App
