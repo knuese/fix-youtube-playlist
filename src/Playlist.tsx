@@ -8,14 +8,18 @@ import {
 } from 'solid-js'
 
 import styles from './Playlist.module.css'
-import { YouTubePlayer } from './YoutubePlayer.tsx'
+
+interface Video {
+  title: string
+  id: string
+}
 
 interface PlaylistProps {
   videos: { title: string; id: string }[]
 }
 
 export const Playlist: Component<PlaylistProps> = (props) => {
-  const [currentVideo, setCurrentVideo] = createSignal('')
+  const [currentVideo, setCurrentVideo] = createSignal<Video>()
   const [seenVideos, setSeenVideos] = createSignal<Set<string>>(new Set())
 
   const getRandomVideo = () => {
@@ -27,9 +31,9 @@ export const Playlist: Component<PlaylistProps> = (props) => {
     }
 
     const index = Math.floor(Math.random() * unseenVideos.length) + 1
-    const nextVideo = unseenVideos[index].id
+    const nextVideo = unseenVideos[index]
 
-    setSeenVideos((prev) => prev.add(nextVideo))
+    setSeenVideos((prev) => prev.add(nextVideo.id))
     setCurrentVideo(nextVideo)
   }
 
@@ -50,24 +54,26 @@ export const Playlist: Component<PlaylistProps> = (props) => {
 
   return (
     <div class={styles.playlistContainer}>
-      <Show when={currentVideo()}>
-        <YouTubePlayer
-          id={currentVideo()}
-          onReady={scrollSelected}
-          onVideoEnd={getRandomVideo}
-        />
-      </Show>
+      <div class={styles.currentVideo}>
+        <Show when={currentVideo()}>
+          <p>
+            Now playing: <b>{currentVideo()!.title}</b>
+          </p>
+        </Show>
+        <button onClick={getRandomVideo}>Pick New Video</button>
+      </div>
       <ul class={styles.playlistList}>
         <For each={props.videos}>
           {(v) => (
             <li
-              classList={{ [styles.selected]: v.id === currentVideo() }}
+              classList={{ [styles.selected]: v.id === currentVideo()?.id }}
               onClick={() => {
-                setCurrentVideo(v.id)
+                setCurrentVideo(v)
                 setSeenVideos((prev) => prev.add(v.id))
               }}
             >
-              {v.title}
+              <div>{v.title}</div>
+              <div data-testid="video-id">{v.id}</div>
             </li>
           )}
         </For>
