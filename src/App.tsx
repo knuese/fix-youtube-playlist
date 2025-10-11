@@ -1,15 +1,38 @@
 import ky from 'ky'
-import { createResource, createSignal, Match, Switch } from 'solid-js'
+import { createResource, createSignal, Match, onMount, Switch } from 'solid-js'
 
 import { Playlist } from './Playlist.tsx'
+import type { Video } from './types.ts'
 
 export const App = () => {
   const [playlistId, setPlaylistId] = createSignal<string | null>(null)
 
-  const [videos] = createResource<{ title: string; id: string }[], string>(
+  const [videos, { refetch }] = createResource<Video[], string>(
     playlistId,
-    (playlistId) => ky.get(`/api/playlist/${playlistId}`).json()
+    async (playlistId) => {
+      let data: Video[]
+
+      const cached = localStorage.getItem(playlistId)
+
+      if (cached) {
+        data = JSON.parse(cached)
+      } else {
+        data = await ky.get(`/api/playlist/${playlistId}`).json()
+        localStorage.setItem(playlistId, JSON.stringify(data))
+      }
+
+      return data
+    }
   )
+
+  onMount(() => {
+    const search = new URLSearchParams(window.location.search)
+    const pl = search.get('pl')
+
+    if (pl) {
+      setPlaylistId(pl)
+    }
+  })
 
   return (
     <Switch>
@@ -25,7 +48,11 @@ export const App = () => {
       <Match when={videos.loading}>Loading...</Match>
       <Match when={videos.error}>Error: {videos.error}</Match>
       <Match when={videos.latest}>
-        <Playlist videos={videos.latest!} />
+        <Playlist
+          id={playlistId()!}
+          refetch={refetch}
+          videos={videos.latest!}
+        />
       </Match>
     </Switch>
   )

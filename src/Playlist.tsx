@@ -1,14 +1,12 @@
 import { type Component, createEffect, createSignal, For, Show } from 'solid-js'
 
 import styles from './Playlist.module.css'
-
-interface Video {
-  title: string
-  id: string
-}
+import type { Video } from './types.ts'
 
 interface PlaylistProps {
-  videos: { title: string; id: string }[]
+  id: string
+  refetch: () => void
+  videos: Video[]
 }
 
 export const Playlist: Component<PlaylistProps> = (props) => {
@@ -51,7 +49,17 @@ export const Playlist: Component<PlaylistProps> = (props) => {
             Now playing: <b>{currentVideo()!.title}</b>
           </p>
         </Show>
-        <button onClick={getRandomVideo}>Pick New Video</button>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button onClick={getRandomVideo}>Pick New Video</button>
+          <button
+            onClick={() => {
+              localStorage.removeItem(props.id)
+              props.refetch()
+            }}
+          >
+            Refetch Playlist
+          </button>
+        </div>
       </div>
       <ul class={styles.playlistList}>
         <For each={props.videos}>
