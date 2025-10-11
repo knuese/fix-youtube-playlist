@@ -51,15 +51,17 @@ test('run playlist', async () => {
 
         await videoTab.close()
 
-        return true
+        return pickVideo()
       })(),
       (async () => {
-        // wait for selected video to change
+        // check for change in selected video from user
         await expect(
           playlistPage.getByTestId('selected').getByTestId('video-id')
         ).not.toHaveText(videoId, { timeout })
 
-        await videoTab.close()
+        if (!videoTab.isClosed()) {
+          await videoTab.close()
+        }
 
         return playlistPage
           .getByTestId('selected')
@@ -71,9 +73,11 @@ test('run playlist', async () => {
     let nextVideo: string
 
     if (videoEnded.status === 'fulfilled') {
-      nextVideo = await pickVideo()
+      nextVideo = videoEnded.value
     } else if (newVideo.status === 'fulfilled') {
       nextVideo = newVideo.value
+    } else {
+      throw new Error('failed to get next video')
     }
 
     return goToVideo(nextVideo)

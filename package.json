@@ -8,9 +8,11 @@
     "client": "vite --host",
     "dev": "npm run server & npm run client",
     "lint": "npx eslint .",
+    "playwright": "(cd playwright; npx playwright test)",
     "prettier": "npx prettier -w",
     "preview": "vite preview",
-    "server": "npx tsx server/app.ts"
+    "server": "npx tsx server/app.ts",
+    "start": "npm run dev & npm run playwright"
   },
   "dependencies": {
     "@googleapis/youtube": "29.0.0",
