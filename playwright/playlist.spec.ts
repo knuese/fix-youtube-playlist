@@ -6,40 +6,79 @@ test('run playlist', async () => {
   const contexts = browser.contexts()
   const context = contexts[0] ?? (await browser.newContext())
 
-  const page = await context.newPage()
+  const playlistPage = await context.newPage()
 
-  await page.goto(process.env.APP_URL)
-  await expect(page).toHaveTitle('fix-youtube-playlist')
+  await playlistPage.goto(process.env.APP_URL)
+  await expect(playlistPage).toHaveTitle('fix-youtube-playlist')
 
-  const input = page.getByRole('textbox')
+  const input = playlistPage.getByRole('textbox')
   await input.pressSequentially(process.env.PLAYLIST_ID)
-  await page.keyboard.press('Enter')
+  await playlistPage.keyboard.press('Enter')
 
   const pickVideo = async () => {
-    const newVideoButton = page.getByText('Pick New Video')
+    const newVideoButton = playlistPage.getByText('Pick New Video')
     await newVideoButton.click()
 
-    const selected = page.getByTestId('selected')
+    const selected = playlistPage.getByTestId('selected')
     await expect(selected).toBeVisible()
 
     const videoId = await selected.getByTestId('video-id').textContent()
     expect(videoId).toBeTruthy()
+
+    return videoId
+  }
+
+  const goToVideo = async (videoId: string) => {
+    if (playlistPage.isClosed()) {
+      return
+    }
 
     const videoTab = await context.newPage()
     await videoTab.goto(`https://youtube.com/watch?v=${videoId}`)
 
     const timeText = await videoTab.locator('.ytp-time-duration').textContent()
     const [minutes, seconds] = timeText.split(':')
-    const duration = Number(seconds) * 1000 + Number(minutes) * 1000 * 60
 
-    await expect(videoTab.locator('.html5-endscreen')).toBeVisible({
-      timeout: duration + 10000
-    })
+    // +10000 to account for potential buffering
+    const timeout = Number(seconds) * 1000 + Number(minutes) * 1000 * 60 + 10000
 
-    await videoTab.close()
+    const [videoEnded, newVideo] = await Promise.allSettled([
+      // wait for video to end
+      (async () => {
+        await expect(videoTab.locator('.html5-endscreen')).toBeVisible({
+          timeout
+        })
 
-    return pickVideo()
+        await videoTab.close()
+
+        return true
+      })(),
+      (async () => {
+        // wait for selected video to change
+        await expect(
+          playlistPage.getByTestId('selected').getByTestId('video-id')
+        ).not.toHaveText(videoId, { timeout })
+
+        await videoTab.close()
+
+        return playlistPage
+          .getByTestId('selected')
+          .getByTestId('video-id')
+          .textContent()
+      })()
+    ])
+
+    let nextVideo: string
+
+    if (videoEnded.status === 'fulfilled') {
+      nextVideo = await pickVideo()
+    } else if (newVideo.status === 'fulfilled') {
+      nextVideo = newVideo.value
+    }
+
+    return goToVideo(nextVideo)
   }
 
-  await pickVideo()
+  // start the recursive loop
+  await goToVideo(await pickVideo())
 })
