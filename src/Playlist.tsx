@@ -1,11 +1,4 @@
-import {
-  type Component,
-  createEffect,
-  createSignal,
-  For,
-  onMount,
-  Show
-} from 'solid-js'
+import { type Component, createEffect, createSignal, For, Show } from 'solid-js'
 
 import styles from './Playlist.module.css'
 
@@ -21,6 +14,8 @@ interface PlaylistProps {
 export const Playlist: Component<PlaylistProps> = (props) => {
   const [currentVideo, setCurrentVideo] = createSignal<Video>()
   const [seenVideos, setSeenVideos] = createSignal<Set<string>>(new Set())
+
+  const isSelected = (v: Video) => currentVideo()?.id === v.id
 
   const getRandomVideo = () => {
     const unseenVideos = props.videos.filter((v) => !seenVideos().has(v.id))
@@ -42,10 +37,6 @@ export const Playlist: Component<PlaylistProps> = (props) => {
     selected?.scrollIntoView({ block: 'center' })
   }
 
-  onMount(() => {
-    getRandomVideo()
-  })
-
   createEffect(() => {
     if (currentVideo()) {
       scrollSelected()
@@ -64,18 +55,21 @@ export const Playlist: Component<PlaylistProps> = (props) => {
       </div>
       <ul class={styles.playlistList}>
         <For each={props.videos}>
-          {(v) => (
-            <li
-              classList={{ [styles.selected]: v.id === currentVideo()?.id }}
-              onClick={() => {
-                setCurrentVideo(v)
-                setSeenVideos((prev) => prev.add(v.id))
-              }}
-            >
-              <div>{v.title}</div>
-              <div data-testid="video-id">{v.id}</div>
-            </li>
-          )}
+          {(v) => {
+            return (
+              <li
+                data-testid={isSelected(v) ? 'selected' : undefined}
+                classList={{ [styles.selected]: isSelected(v) }}
+                onClick={() => {
+                  setCurrentVideo(v)
+                  setSeenVideos((prev) => prev.add(v.id))
+                }}
+              >
+                <div>{v.title}</div>
+                <div data-testid="video-id">{v.id}</div>
+              </li>
+            )
+          }}
         </For>
       </ul>
     </div>

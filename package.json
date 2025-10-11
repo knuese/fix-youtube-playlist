@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc -b && vite build",
-    "client": "vite",
+    "client": "vite --host",
     "dev": "npm run server & npm run client",
     "lint": "npx eslint .",
     "prettier": "npx prettier -w",
@@ -15,6 +15,7 @@
   "dependencies": {
     "@googleapis/youtube": "29.0.0",
     "@solid-primitives/script-loader": "2.3.2",
+    "dotenv": "17.2.3",
     "express": "5.1.0",
     "google-auth-library": "10.4.0",
     "googleapis": "161.0.0",
@@ -22,6 +23,7 @@
     "solid-js": "1.9.9"
   },
   "devDependencies": {
+    "@playwright/test": "1.56.0",
     "@types/express": "5.0.3",
     "@types/node": "22.18.8",
     "@types/youtube": "0.1.2",

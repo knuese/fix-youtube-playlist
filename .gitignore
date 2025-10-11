@@ -26,3 +26,10 @@ dist-ssr
 client_secret.json
 .env
 token.json
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
