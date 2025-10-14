@@ -17,7 +17,9 @@ export const App = () => {
       if (cached) {
         data = JSON.parse(cached)
       } else {
-        data = await ky.get(`/api/playlist/${playlistId}`).json()
+        data = await ky
+          .get(`/api/playlist/${playlistId}`, { timeout: 20000 })
+          .json()
         localStorage.setItem(playlistId, JSON.stringify(data))
       }
 

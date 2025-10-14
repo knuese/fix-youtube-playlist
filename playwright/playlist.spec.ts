@@ -1,8 +1,12 @@
 import { chromium, expect, test } from '@playwright/test'
+import ky from 'ky'
 
 test('run playlist', async () => {
-  const browser = await chromium.connectOverCDP(process.env.WS_URL)
+  const { webSocketDebuggerUrl } = await ky
+    .get(`http://localhost:${process.env.DEBUG_PORT}/json/version`)
+    .json<Record<string, string>>()
 
+  const browser = await chromium.connectOverCDP(webSocketDebuggerUrl)
   const contexts = browser.contexts()
   const context = contexts[0] ?? (await browser.newContext())
 
