@@ -2,7 +2,7 @@ import express from 'express'
 
 import { getAuthUrl, getYouTubeClient, setTokens } from './ytClient.ts'
 
-const PORT = 8888
+const PORT = 8989
 
 const app = express()
 
