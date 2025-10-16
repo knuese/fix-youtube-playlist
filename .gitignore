@@ -33,3 +33,5 @@ token.json
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+tokens.ts
