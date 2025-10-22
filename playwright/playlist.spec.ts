@@ -40,6 +40,11 @@ test('run playlist', async () => {
     const videoTab = await context.newPage()
     await videoTab.goto(`https://youtube.com/watch?v=${videoId}`)
 
+    // wait for video to start
+    await expect(videoTab.locator('.ytp-time-current')).toHaveText('0:01', {
+      timeout: 10000
+    })
+
     const timeText = await videoTab.locator('.ytp-time-duration').textContent()
     const [minutes, seconds] = timeText.split(':')
 
@@ -49,9 +54,10 @@ test('run playlist', async () => {
     const [videoEnded, newVideo] = await Promise.allSettled([
       // wait for video to end
       (async () => {
-        await expect(videoTab.locator('.html5-endscreen')).toBeVisible({
-          timeout
-        })
+        await expect(videoTab.locator('.ytp-time-current')).toHaveText(
+          timeText,
+          { timeout }
+        )
 
         await videoTab.close()
 
