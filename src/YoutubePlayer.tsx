@@ -14,7 +14,10 @@ interface YouTubePlayerProps {
 }
 
 export const YouTubePlayer: Component<YouTubePlayerProps> = (props) => {
+  /* eslint-disable no-unassigned-vars */
   let playerContainer!: HTMLDivElement
+  /* eslint-enable */
+
   const [player, setPlayer] = createSignal<YT.Player | null>(null)
 
   createScriptLoader({ src: 'https://www.youtube.com/iframe_api' })

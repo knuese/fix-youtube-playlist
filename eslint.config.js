@@ -1,7 +1,6 @@
 import js from '@eslint/js'
 import { defineConfig } from 'eslint/config'
 import simpleImportSort from 'eslint-plugin-simple-import-sort'
-import solid from 'eslint-plugin-solid'
 import globals from 'globals'
 import tsEslint from 'typescript-eslint'
 
@@ -28,14 +27,6 @@ export default defineConfig([
   {
     files: ['server/**', 'tests/**', '__mocks__/**', 'esbuild.js'],
     languageOptions: { globals: globals.node }
-  },
-  {
-    files: ['**/*.jsx', '**/*.tsx'],
-    ...solid.configs['flat/recommended'],
-    rules: {
-      ...solid.configs['flat/recommended'].rules,
-      'solid/style-prop': ['error', { allowString: true }]
-    }
   },
   {
     files: [
