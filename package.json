@@ -8,10 +8,12 @@
     "client": "vite",
     "dev": "npm run server & npm run client",
     "lint": "npx eslint .",
+    "login": "npx tsx configureEnv --login",
     "playwright": "(cd playwright; npx playwright test)",
     "prettier": "npx prettier -w .",
     "preview": "vite preview",
     "server": "npx tsx server/app.ts",
+    "set-code": "npx tsx configureEnv --code",
     "start": "sh start.sh"
   },
   "dependencies": {
