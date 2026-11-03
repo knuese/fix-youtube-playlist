@@ -8,7 +8,7 @@
     "client": "vite",
     "dev": "npm run server & npm run client",
     "format": "npx oxfmt .",
-    "lint": "npx oxlint .",
+    "lint": "npx oxlint . && npx oxfmt --check",
     "login": "npx tsx configureEnv --login",
     "playwright": "(cd playwright; npx playwright test)",
     "preview": "vite preview",
