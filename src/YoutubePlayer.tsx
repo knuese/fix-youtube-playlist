@@ -26,7 +26,7 @@ export const YouTubePlayer: Component<YouTubePlayerProps> = (props) => {
     const videoId = props.id
 
     window.onYouTubeIframeAPIReady = () => {
-      const player = new window.YT.Player(playerContainer, {
+      const ytPlayer = new window.YT.Player(playerContainer, {
         height: '360',
         width: '640',
         videoId,
@@ -43,7 +43,7 @@ export const YouTubePlayer: Component<YouTubePlayerProps> = (props) => {
         }
       })
 
-      setPlayer(player)
+      setPlayer(ytPlayer)
     }
   })
 

@@ -37,7 +37,7 @@ app.get('/playlist/:id', async (req, res) => {
     let nextPageToken = ''
 
     do {
-      const res = await yt.playlistItems.list({
+      const ytRes = await yt.playlistItems.list({
         part: ['snippet'],
         playlistId,
         pageToken: nextPageToken,
@@ -45,17 +45,17 @@ app.get('/playlist/:id', async (req, res) => {
       })
 
       console.log(
-        `received ${res.data.items?.length} items, nextPageToken: ${res.data.nextPageToken}`
+        `received ${ytRes.data.items?.length} items, nextPageToken: ${ytRes.data.nextPageToken}`
       )
 
       videos.push(
-        ...(res.data.items ?? []).map((item) => {
+        ...(ytRes.data.items ?? []).map((item) => {
           const { title, resourceId } = item.snippet!
           return { title, id: resourceId!.videoId }
         })
       )
 
-      nextPageToken = res.data.nextPageToken ?? ''
+      nextPageToken = ytRes.data.nextPageToken ?? ''
     } while (nextPageToken)
 
     res.status(200).send(videos)

@@ -1,16 +1,16 @@
 {
   "name": "fix-youtube-playlist",
-  "private": true,
   "version": "0.0.0",
+  "private": true,
   "type": "module",
   "scripts": {
     "build": "tsc -b && vite build",
     "client": "vite",
     "dev": "npm run server & npm run client",
-    "lint": "npx eslint .",
+    "format": "npx oxfmt .",
+    "lint": "npx oxlint .",
     "login": "npx tsx configureEnv --login",
     "playwright": "(cd playwright; npx playwright test)",
-    "prettier": "npx prettier -w .",
     "preview": "vite preview",
     "server": "npx tsx server/app.ts",
     "set-code": "npx tsx configureEnv --code",
@@ -27,19 +27,16 @@
     "solid-js": "1.9.18"
   },
   "devDependencies": {
-    "@eslint/js": "10.0.1",
     "@playwright/test": "1.62.1",
     "@types/express": "5.0.6",
     "@types/node": "24.13.3",
     "@types/youtube": "0.3.0",
-    "eslint": "10.9.1",
-    "eslint-plugin-simple-import-sort": "14.0.0",
     "globals": "17.11.0",
-    "prettier": "3.9.6",
+    "oxfmt": "0.76.0",
+    "oxlint": "1.90.0",
     "tsx": "4.23.12",
     "typescript": "6.0.3",
-    "typescript-eslint": "8.68.0",
-    "vite": "8.2.2",
+    "vite": "8.3.5",
     "vite-plugin-solid": "2.11.14"
   }
 }

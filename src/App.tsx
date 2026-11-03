@@ -9,18 +9,16 @@ export const App = () => {
 
   const [videos, { refetch }] = createResource<Video[], string>(
     playlistId,
-    async (playlistId) => {
+    async (id) => {
       let data: Video[]
 
-      const cached = localStorage.getItem(playlistId)
+      const cached = localStorage.getItem(id)
 
       if (cached) {
         data = JSON.parse(cached)
       } else {
-        data = await ky
-          .get(`/api/playlist/${playlistId}`, { timeout: 20000 })
-          .json()
-        localStorage.setItem(playlistId, JSON.stringify(data))
+        data = await ky.get(`/api/playlist/${id}`, { timeout: 20000 }).json()
+        localStorage.setItem(id, JSON.stringify(data))
       }
 
       return data
