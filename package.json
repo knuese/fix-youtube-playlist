@@ -7,13 +7,13 @@
     "build": "tsc -b && vite build",
     "client": "vite",
     "dev": "npm run server & npm run client",
+    "env:login": "npx tsx configureEnv --login",
+    "env:set-code": "npx tsx configureEnv --code",
     "format": "npx oxfmt .",
     "lint": "npx oxlint . && npx oxfmt --check",
-    "login": "npx tsx configureEnv --login",
     "playwright": "(cd playwright; npx playwright test)",
     "preview": "vite preview",
     "server": "npx tsx server/app.ts",
-    "set-code": "npx tsx configureEnv --code",
     "start": "sh start.sh"
   },
   "dependencies": {
